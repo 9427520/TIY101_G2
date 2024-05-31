@@ -31,9 +31,12 @@ from linebot.v3.webhooks import (
 )
 
 app = Flask(__name__)
-
+current_script_path = os.path.abspath(__file__)
+# 獲取當前腳本所在的目錄
+current_script_dir = os.path.dirname(current_script_path)
+json_file_path = os.path.join(current_script_dir, 'env.json')
 # ENV Config file
-with open(json_file_path) as f:
+with open(json_file_path, 'r') as f:
     env = json.load(f)
 configuration = Configuration(access_token=env['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(env['CHANNEL_SECRET'])
@@ -70,10 +73,10 @@ def handle_message(event):
         model = genai.GenerativeModel('gemini-1.0-pro-vision-latest')
         image = Image.open(BytesIO(message_content))
 		#提示詞也可不設
-		prompt='此為寵物健檢報告,請依圖片輸出表格數值'
+        prompt='此為寵物健檢報告,請依圖片輸出表格數值'
         if prompt:
             response = model.generate_content([prompt,image])
-		else :
+        else :
             response = model.generate_content(image)	
 		#print出結果可以看有無正確輸出	
         print(response.text)
